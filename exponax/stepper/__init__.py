@@ -61,6 +61,10 @@ corresponding generic stepper.
 The Wave stepper uses a handcrafted diagonalization in Fourier space specific to
 the wave equation. It has no corresponding generic stepper.
 
+The KleinGordon stepper extends the Wave stepper with a mass term, using the
+Klein-Gordon dispersion relation ω(k) = √(c²|k|² + m²). Setting m=0 recovers
+the wave equation.
+
 In the reaction submodule you find specific steppers that are special cases of
 the GeneralPolynomialStepper, e.g., the FisherKPPStepper.
 
@@ -91,6 +95,7 @@ from ._navier_stokes import (
     NavierStokesVelocity,
     NavierStokesVorticity,
 )
+from ._klein_gordon import KleinGordon
 from ._wave import Wave
 
 __all__ = [
@@ -100,6 +105,7 @@ __all__ = [
     "Dispersion",
     "HyperDiffusion",
     "Wave",
+    "KleinGordon",
     "Burgers",
     "KortewegDeVries",
     "KuramotoSivashinsky",
