@@ -13,6 +13,7 @@ The concrete PDE steppers are:
     - Dispersion
     - HyperDiffusion
     - Wave
+    - KleinGordon
     - Burgers
     - KortewegDeVries
     - KuramotoSivashinsky
