@@ -88,6 +88,7 @@ from ._burgers import Burgers
 from ._diffusion import Diffusion
 from ._dispersion import Dispersion
 from ._hyper_diffusion import HyperDiffusion
+from ._klein_gordon import KleinGordon
 from ._korteweg_de_vries import KortewegDeVries
 from ._kuramoto_sivashinsky import KuramotoSivashinsky, KuramotoSivashinskyConservative
 from ._navier_stokes import (
@@ -96,7 +97,6 @@ from ._navier_stokes import (
     NavierStokesVelocity,
     NavierStokesVorticity,
 )
-from ._klein_gordon import KleinGordon
 from ._wave import Wave
 
 __all__ = [

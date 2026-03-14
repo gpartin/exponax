@@ -1,11 +1,9 @@
 import jax.numpy as jnp
 import pytest
 
-import exponax as ex
 from exponax.stepper import KleinGordon, Wave
 
-L = 2 * jnp.pi
-PI = jnp.pi
+L = 2 * jnp.pi  # domain length
 
 
 # ===========================================================================
@@ -154,14 +152,28 @@ class TestKleinGordonAnalytical1D:
         assert u[0] == pytest.approx(h_exact, abs=1e-4)
 
     def test_energy_bounded(self):
-        """Total energy should be conserved (bounded) over many steps."""
+        """Total Klein-Gordon energy should be conserved over many steps."""
         k0, c, m, N, dt = 3, 1.0, 2.0, 64, 0.005
-        stepper, x, u0, omega = self._make_stepper_and_ic(k0, c, m, N, dt)
+        stepper = KleinGordon(1, L, N, dt, speed_of_sound=c, mass=m)
+        dx = L / N
+
+        x = jnp.linspace(0, L, N, endpoint=False)
+        h0 = jnp.cos(k0 * x)[None]
+        v0 = jnp.zeros_like(h0)
+        u0 = jnp.concatenate([h0, v0], axis=0)
+
+        # Wavenumbers for gradient energy in Fourier space
+        k = jnp.fft.rfftfreq(N, d=dx) * 2 * jnp.pi
 
         def energy(u):
             h, v = u[0], u[1]
-            # KE + gradient PE + mass PE
-            return jnp.sum(v**2 + c**2 * jnp.abs(jnp.fft.rfft(h))**2 + m**2 * h**2)
+            h_hat = jnp.fft.rfft(h)
+            # KE: ½∫v² dx,  gradient PE: ½c²∫|∇h|² dx,  mass PE: ½m²∫h² dx
+            # Parseval: ∫|∇h|² dx = (1/N) Σ |k|² |ĥ(k)|²
+            ke = 0.5 * jnp.sum(v**2) * dx
+            grad_pe = 0.5 * c**2 * jnp.sum(k**2 * jnp.abs(h_hat)**2) / N
+            mass_pe = 0.5 * m**2 * jnp.sum(h**2) * dx
+            return ke + grad_pe + mass_pe
 
         e0 = energy(u0)
         u = u0
@@ -169,5 +181,5 @@ class TestKleinGordonAnalytical1D:
             u = stepper(u)
         e_final = energy(u)
 
-        # Spectral solver should conserve energy to machine precision
+        # Spectral stepper conserves energy well; f32 accumulation limits precision
         assert e_final == pytest.approx(float(e0), rel=1e-3)
